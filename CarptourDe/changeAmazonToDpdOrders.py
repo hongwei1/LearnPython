@@ -26,8 +26,8 @@ sku_dpd_reference_pairs = {
     "1039-Schwarz":"Rolle4000Black",
     "1044-Comfort 746523": "",
     "1005":"270013",
-    "1019-Basic":"Six bait boxes",
-    "1019-Pro":"Six bait boxes + Bag",
+    "1019-Basic":"700016",#"Six bait boxes",
+    "1019-Pro":"302011",#"Six bait boxes + Bag",
     "1022":" ",
     "AP-978G-XXFK":"270005",
     "1042-009":" ",
@@ -80,7 +80,7 @@ for l in file_stream:
         PLZ = ship_postal_code #"95336"
         Ort = ship_city #"Mainleus"
         Land = ship_country#"DEU"
-        Telefon=buyer_phone_number #"015226395389"
+        Telefon=buyer_phone_number #"015226395381019-Basic9"
         E_Mail= buyer_email #"fischenundmehr@gmail.com"
         KundenNr = buyer_name
         Referenz = dpd_reference
