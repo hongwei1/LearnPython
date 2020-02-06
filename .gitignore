@@ -9,7 +9,7 @@ __pycache__/
 
 # C extensions
 *.so
-
+CarptourDe/zip
 # Distribution / packaging
 .Python
 build/
@@ -106,3 +106,4 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+/CarptourDe/zip/19897989992018291.txt
