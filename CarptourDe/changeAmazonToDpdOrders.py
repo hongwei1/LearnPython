@@ -8,10 +8,10 @@ now = datetime.now() # current date and time
 def hasNumbers(inputString): return any(char.isdigit() for char in inputString)
 
 
-amazon_unshipped_file = "19990164855018297.txt"
+amazon_unshipped_file = "20010713268018298.txt"
 
 file_stream = codecs.open(amazon_unshipped_file, 'r', 'utf-8')
-pdp_file = codecs.open("19990164855018297.csv", 'w', 'utf-16')
+pdp_file = codecs.open("20010713268018298.csv", 'w', 'utf-16')
 pdp_first_line = "Action;ItemID;TransactionID;ShippingStatus;ShippingCarrierUsed;ShipmentTrackingNumber;Firma;Name;Strasse;Adresszusatz;PLZ;Ort;Land;Telefon;E-Mail;KundenNr;Referenz;Inhalt;Gewicht;Nachnahmebetrag;Versanddatum;StatusdatumAbgeholt;StatusdatumZugestellt;PaketstatusID \n"
 pdp_file.write(pdp_first_line) # first write the first line into file:
 
@@ -82,8 +82,8 @@ for l in file_stream:
         Land = ship_country#"DEU"
         Telefon=buyer_phone_number #"015226395381019-Basic9"
         E_Mail= buyer_email #"fischenundmehr@gmail.com"
-        KundenNr = buyer_name
-        Referenz = dpd_reference
+        KundenNr = order_id  # before it is the `buyer_name` ,now it is the Referenz 2: in the 面单.
+        Referenz = dpd_reference #this is the Referenz 1: in the 面单.
         Inhalt = product_name
         Versanddatum =now.strftime("%d.%m.%Y  %H:%M:%S")
         if(sku =="1013"):  #1013	046+021	(这个需要两个面单,同一个人两个货)
