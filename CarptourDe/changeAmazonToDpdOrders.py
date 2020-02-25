@@ -8,17 +8,23 @@ now = datetime.now() # current date and time
 def hasNumbers(inputString): return any(char.isdigit() for char in inputString)
 
 
-amazon_unshipped_file = "20010713268018298.txt"
+amazon_unshipped_file = "20138290295018306.txt"
 
 file_stream = codecs.open(amazon_unshipped_file, 'r', 'utf-8')
-pdp_file = codecs.open("20010713268018298.csv", 'w', 'utf-16')
-pdp_first_line = "Action;ItemID;TransactionID;ShippingStatus;ShippingCarrierUsed;ShipmentTrackingNumber;Firma;Name;Strasse;Adresszusatz;PLZ;Ort;Land;Telefon;E-Mail;KundenNr;Referenz;Inhalt;Gewicht;Nachnahmebetrag;Versanddatum;StatusdatumAbgeholt;StatusdatumZugestellt;PaketstatusID \n"
+pdp_file = codecs.open("20138290295018306.csv", 'w', 'utf-16')
+pdp_first_line = "Anrede;Firma;Vorname;Nachname;Land;PLZ;Ort;Straße;Hausnummer;Referenz 1;Telefon;E-Mail;Adresszusatz;Bundesland;Inhalt;Gewicht;default;Referenz 2 \n"
 pdp_file.write(pdp_first_line) # first write the first line into file:
+
+def listToString(s):
+    # initialize an empty string 
+    str1 = " "
+    # return string   
+    return (str1.join(s))
 
 #https://docs.google.com/spreadsheets/d/1raDs8m-Yd_XOFskueqqcMcMxvR2KVhTJg6ILsQXBhnw/edit#gid=121665415 check here, you will see the mappings.
 sku_dpd_reference_pairs = {
     "1000":"302008",
-    "1001":" ",
+    "1001":"160012",
     "1002":"160007",
     "1003":"160011",
     "1004":"2020024",
@@ -26,8 +32,8 @@ sku_dpd_reference_pairs = {
     "1006":"heater",
     "1007":"BDZ-168",
     "1012":"700023",
-    "1013":"270019+270004",
-    "1014":"famb008x",
+    "1013":"270016+270004",
+    "1014":"Trolley-008X/310002/FAMB008X",
     "1015-L":"302014",
     "1015-M":"302013",
     "1016":"302009",
@@ -38,7 +44,7 @@ sku_dpd_reference_pairs = {
     "1020-5S":"270038+270039",
     "1021":"190038",
     "1022":"302002",
-    "1023":"  ",
+    "1023":"190031",
     "1024":"302010",
     "1025":"160013",
     "1026-Advance":"Boat-C",
@@ -48,10 +54,10 @@ sku_dpd_reference_pairs = {
     "1027":"160019",
     "1028":"160004",
     "1029":"160010",
-    "1030-270":" ",
-    "1030-290":" ",
-    "1031-180":" ",
-    "1031-235":" ",
+    "1030-270":"230002",
+    "1030-290":"230003",
+    "1031-180":"230004",
+    "1031-235":"230001",
     "1032-Set":"210017-Set",
     "1032-Standard":"210017-Standard",
     "1032-Winterskin":"210017-Winterskin",
@@ -65,16 +71,17 @@ sku_dpd_reference_pairs = {
     "1037-Classic":"059NEW+DLeg",
     "1037-Comfort":"059AD(270001)",
     "1037-Comfort-Camouflage":"270005-Camo",
-    "1037-Deluxe":" ",
-    "1038-Classic":" ",
-    "1038-Comfort":" ",
-    "1038-Deluxe":" ",
+    "1037-Deluxe":"270006",
+    "1038-Classic":"059NEW+DLeg",
+    "1038-Comfort":"270001",
+    "1038-Deluxe":"270012",
     "1039-Camouflage":"4000SK-Camo",
     "1039-Schwarz":"4000SK-Black",
-    "1040-Camouflage":"6000sk -Camo",
-    "1040-Schwarz":"6000sk -Black",
-    "1041-R1":"Trolley-051-1W",
-    "1041-R2":"Trolley-051-2W",
+    "1040-Camouflage":"6000sk-Camo",
+    "1040-Schwarz":"6000sk-Black",
+    "1041-R1":"Trolley-051-1W/310001/FAMB051",
+    "1041-R2":"Trolley-051-2W/310003",
+    "1041-R3":"Trolley-008X/310002/FAMB008X",
     "1042-001":"10 ft 2 teilig 2.75 lbs-Camo",
     "1042-002":"10 ft 2 teilig 2.75 lbs-Black",
     "1042-003":"10 ft 2 teilig 3 lbs-Camo",
@@ -92,17 +99,19 @@ sku_dpd_reference_pairs = {
     "1043-MG":"FL-01-Green-Small",
     "1043-MS":"FL-01-Black-Small",
     "1044-Classic 696921":"270016",
-    "1044-Comfort 736120":" ",
-    "1044-Comfort 746523":" ",
-    "1044-Comfort 786821":" ",
-    "1044-Deluxe 716521":"  ",
-    "1044-Deluxe 736319":" ",
-    "1044-Transporttasche":" ",
+    "1044-Comfort 736120":"270024",
+    "1044-Comfort 746523":"270023",
+    "1044-Comfort 786821":"270019",
+    "1044-Deluxe 716521":"270031",
+    "1044-Deluxe 736319":"270025",
+    "1044-Transporttasche":"190035",
     "1045-PARENT":"270020",
-    "2x-KD4H-M022":"FA214-4+4SW02",
+    "2X-KD4H-M022":"FA214-4+4SW02",
     "AP-978G-XXFK":"270005",
     "C9-KRTX-RO2C":"270025",
-    "JX-9LRX-UUZA":"FA02-4"
+    "JX-9LRX-UUZA":"FA02-4",
+    "YS-RMGJ-0IZT":"270025",
+    "210014":"210014"
 }
 
 i = 0
@@ -124,7 +133,7 @@ for l in file_stream:
         buyer_name =list_from_amzon[8]
         sku=list_from_amzon[10]
         order_id=list_from_amzon[0]
-        dpd_reference = sku_dpd_reference_pairs.get(sku, "Not Find. please check photo with this amazon_order_id = {}".format(order_id))
+        dpd_reference = sku_dpd_reference_pairs.get(sku, "Not Find. please check photo with this amazon_order_id = {}, sku = {}".format(order_id, sku))
         product_name = list_from_amzon[11]
         # print(dpd_reference)
         # print(product_name)
@@ -137,24 +146,26 @@ for l in file_stream:
         # print(buyer_email)
 
         name = recipient_name#"Denis Potemin-2"
-        Firm = " " #if(hasNumbers(ship_address_1)) else ship_address_1 # if the address do not have number, then it is the company.
-        strasse = (ship_address_1+" "+ship_address_2+" "+ship_address_3) #if(hasNumbers(ship_address_1)) else (ship_address_2+" "+ship_address_3)
+        Firm = "" #if(hasNumbers(ship_address_1)) else ship_address_1 # if the address do not have number, then it is the company.
+        Hausnummer = ship_address_1.split(' ')[-1]   #if(hasNumbers(ship_address_1)) else ship_address_1 # if the address do not have number, then it is the company.
+        address_1 = listToString(ship_address_1.split(' ')[:-1])   #if(hasNumbers(ship_address_1)) else ship_address_1 # if the address do not have number, then it is the company.
+        strasse = (address_1+" "+ship_address_2+" "+ship_address_3) #if(hasNumbers(ship_address_1)) else (ship_address_2+" "+ship_address_3)
         PLZ = ship_postal_code #"95336"
         Ort = ship_city #"Mainleus"
         Land = ship_country#"DEU"
         Telefon=buyer_phone_number #"015226395381019-Basic9"
         E_Mail= buyer_email #"fischenundmehr@gmail.com"
-        KundenNr = order_id  # before it is the `buyer_name` ,now it is the Referenz 2: in the 面单.
+        reference2 = order_id  # before it is the `buyer_name` ,now it is the Referenz 2: in the 面单.
         Referenz = dpd_reference #this is the Referenz 1: in the 面单.
-        Inhalt = product_name
+        Inhalt = ""#product_name
         Versanddatum =now.strftime("%d.%m.%Y  %H:%M:%S")
         if(sku =="1013"):  #1013	046+021	(这个需要两个面单,同一个人两个货)
-            dataFirstLine = "Status;0;0;1;DPD;;{};{};{};;{};{};{};{};{};{};{};{};0,00;0,00;{};01.01.2000 00:00:00;01.01.2000 00:00:00;   \n".format(Firm, name, strasse, PLZ, Ort,Land,Telefon,E_Mail, KundenNr, Referenz, Inhalt, Versanddatum)
+            dataFirstLine = ";{};{};;{};{};{};{};{};{};{};{};;;{};;;{}; \n".format(Firm, name, Land, PLZ, Ort, strasse, Hausnummer, "270016", Telefon, E_Mail, Inhalt, reference2)
             pdp_file.write(dataFirstLine)
-            dataFirstLine = "Status;0;0;1;DPD;;{};{};{};;{};{};{};{};{};{};{};{};0,00;0,00;{};01.01.2000 00:00:00;01.01.2000 00:00:00;   \n".format(Firm,name, strasse, PLZ, Ort,Land,Telefon,E_Mail, KundenNr, Referenz, Inhalt, Versanddatum)
+            dataFirstLine = ";{};{};;{};{};{};{};{};{};{};{};;;{};;;{};  \n".format(Firm, name, Land, PLZ, Ort, strasse, Hausnummer, "270004", Telefon, E_Mail, Inhalt, reference2)
             pdp_file.write(dataFirstLine)
         else:   
-            dataFirstLine = "Status;0;0;1;DPD;;{};{};{};;{};{};{};{};{};{};{};{};0,00;0,00;{};01.01.2000 00:00:00;01.01.2000 00:00:00;  \n".format(Firm, name, strasse, PLZ, Ort,Land,Telefon,E_Mail, KundenNr, Referenz, Inhalt, Versanddatum)
+            dataFirstLine = ";{};{};;{};{};{};{};{};{};{};{};;;{};;;{};  \n".format(Firm, name, Land, PLZ, Ort, strasse, Hausnummer, Referenz, Telefon, E_Mail, Inhalt, reference2)
             pdp_file.write(dataFirstLine)
 
 file_stream.close()
